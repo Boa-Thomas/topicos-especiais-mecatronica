@@ -14,6 +14,7 @@ Este projeto é um sistema de controle de semáforos usando Arduino. O código �
 ## Pinagem
 
 ### LEDs
+
 - LED Vermelho do Semáforo 1: Pino 2
 - LED Amarelo do Semáforo 1: Pino 3
 - LED Verde do Semáforo 1: Pino 4
@@ -23,6 +24,7 @@ Este projeto é um sistema de controle de semáforos usando Arduino. O código �
 - LED Verde do Semáforo 2: Pino 7
 
 ### Sensores
+
 - Sensor de Pedestres do Semáforo 1: Pino 8
 - Sensor de Pedestres do Semáforo 2: Pino 9
 
@@ -50,4 +52,3 @@ Sinta-se à vontade para contribuir com este projeto.
 ## Licença
 
 MIT
-
