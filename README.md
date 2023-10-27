@@ -1,42 +1,53 @@
-# Semáforo com Sensores
+# Sistema de Controle de Semáforos com Sensores
 
 ## Descrição
 
-Este projeto é um semáforo Arduino que usa sensores para detectar pedestres e veículos. O sistema possui três modos:
+Este projeto é um sistema de controle de semáforos usando Arduino. O código é configurado para dois semáforos em um cruzamento, cada um com uma faixa de pedestres. Cada semáforo possui dois sensores de fluxo para veículos: um mais próximo e um mais afastado do semáforo.
 
-- Modo 1: Semáforo padrão sem qualquer prioridade.
-- Modo 2: Prioridade para pedestres.
-- Modo 3: Prioridade para veículos.
+## Hardware Necessário
 
-## Requisitos
+- Placa Arduino (testado em Arduino Uno)
+- LEDs para representar os semáforos (2 vermelhos, 2 amarelos, 2 verdes)
+- Sensores para detecção de pedestres (2 sensores)
+- Sensores de fluxo para veículos (4 sensores)
 
-- Placa Arduino (qualquer modelo compatível)
-- LEDs para os semáforos (vermelho, amarelo e verde)
-- Sensores para detectar pedestres e veículos
+## Pinagem
 
-## Pinos
+### LEDs
+- LED Vermelho do Semáforo 1: Pino 2
+- LED Amarelo do Semáforo 1: Pino 3
+- LED Verde do Semáforo 1: Pino 4
 
-Os pinos utilizados no Arduino para este projeto são:
+- LED Vermelho do Semáforo 2: Pino 5
+- LED Amarelo do Semáforo 2: Pino 6
+- LED Verde do Semáforo 2: Pino 7
 
-- LEDs do semáforo 1: 2, 3 e 4
-- LEDs do semáforo 2: 5, 6 e 7
-- Sensor de pedestres: 8
-- Sensor de veículos: 9
+### Sensores
+- Sensor de Pedestres do Semáforo 1: Pino 8
+- Sensor de Pedestres do Semáforo 2: Pino 9
 
-## Setup
+- Sensor de Fluxo de Veículos Próximo do Semáforo 1: Pino 10
+- Sensor de Fluxo de Veículos Afastado do Semáforo 1: Pino 11
+- Sensor de Fluxo de Veículos Próximo do Semáforo 2: Pino 12
+- Sensor de Fluxo de Veículos Afastado do Semáforo 2: Pino 13
 
-1. Conecte os LEDs e sensores aos pinos apropriados no Arduino.
-2. Carregue o código para a placa Arduino.
-3. Abra o monitor serial para visualizar as mensagens de depuração.
+## Funcionalidades
 
-## Uso
+- `mode1()`: Modo de operação padrão dos semáforos.
+- `mode2()`: Modo de operação que dá prioridade aos pedestres.
+- `mode3()`: Modo de operação que dá prioridade ao tráfego de veículos.
 
-Após carregar o código, o sistema entrará no Modo 1 por padrão, a menos que detecte um número significativo de pedestres ou veículos.
+## Como Usar
 
-## Contribuição
+1. Conecte todos os componentes de hardware conforme a pinagem descrita.
+2. Carregue o código no Arduino.
+3. O sistema começa a operar automaticamente.
 
-Fique à vontade para contribuir e adicionar novas funcionalidades a este projeto.
+## Contribuições
+
+Sinta-se à vontade para contribuir com este projeto.
 
 ## Licença
 
-Este projeto é licenciado sob a Licença MIT.
+MIT
+
