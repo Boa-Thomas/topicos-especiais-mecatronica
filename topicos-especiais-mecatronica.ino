@@ -41,7 +41,7 @@ void setup() {
   // Inicializar a porta serial para depuração
   Serial.begin(9600);
 }
-
+// Modo de operação padrão
 void mode1() {
   semaforo(red, 1);
   delay(5000);
@@ -51,16 +51,33 @@ void mode1() {
   delay(15000);
 }
 
-void mode2() {
-  // Código para Modo 2 (Prioridade para pedestres)
+void mode21() {
+  // Código para Modo 21 (Prioridade para pedestres no semaforo 1)
   // Implemente a lógica aqui
 }
 
-void mode3() {
-  // Código para Modo 3 (Prioridade para tráfego de veículos)
+void mode22() {
+  // Código para Modo 22 (Prioridade para pedestres no semaforo 2)
   // Implemente a lógica aqui
 }
 
+void mode31() {
+  // Código para Modo 31 (Prioridade para tráfego de veículos no semaforo 1)
+  // 
+  // Implemente a lógica aqui
+}
+
+void mode31() {
+  // Código para Modo 32 (Prioridade para tráfego de veículos no semaforo 2)
+  // 
+  // Implemente a lógica aqui
+}
+
+int read_pedestrian_sensor( int sensor_pin) {
+  // Código para ler o sensor de pedestres
+  // 
+  // Implemente a lógica aqui
+}
 void semaforo(String color, int semaforo_id) {
   int redPin, yellowPin, greenPin;
   
@@ -96,19 +113,37 @@ void semaforo(String color, int semaforo_id) {
 }
 
 void loop() {
-  int pedestrian_count1 = digitalRead(pedestrian_sensor1);
-  int pedestrian_count2 = digitalRead(pedestrian_sensor2);
+  // Ler os sensores
+  // Semaforo 1
+  int pedestrian_count1 = read_pedestrian_sensor(pedestrian_sensor1);
+  // Semafoto 2
+  int pedestrian_count2 = read_pedestrian_sensor(pedestrian_sensor2);
 
+  // Ler os sensores de fluxo de veículos
+  // Semaforo 1
   int vehicle_count1_near = digitalRead(vehicle_sensor1_near);
   int vehicle_count1_far = digitalRead(vehicle_sensor1_far);
+  // Semaforo 2
   int vehicle_count2_near = digitalRead(vehicle_sensor2_near);
   int vehicle_count2_far = digitalRead(vehicle_sensor2_far);
 
   // Suponha que 10 seja um limite para ativar modos especiais
-  if (pedestrian_count1 > 10 || pedestrian_count2 > 10) {
-    mode2();
-  } else if (vehicle_count1_near > 10 || vehicle_count1_far > 10 || vehicle_count2_near > 10 || vehicle_count2_far > 10) {
-    mode3();
+if ( pedestrian_count1 > 10 || pedestrian_count2 > 10 ) {
+    if ( pedestrian_count1 > 10 && pedestrian_count2 > 10 ) {
+      mode1();
+    } else if ( pedestrian_count1 > 10 ) {
+      mode21();
+    } else if ( pedestrian_count2 > 10 ) {
+      mode22();
+    }
+  } else if ( vehicle_count1_near == HIGH || vehicle_count1_far == HIGH || vehicle_count2_near == HIGH || vehicle_count2_far == HIGH ) {
+    if ( vehicle_count1_near == HIGH && vehicle_count1_far == HIGH && vehicle_count2_near == HIGH && vehicle_count2_far == HIGH ) {
+      mode1();
+    } else if ( vehicle_count1_near == HIGH || vehicle_count1_far == HIGH ) {
+      mode31();
+    } else if ( vehicle_count2_near == HIGH || vehicle_count2_far == HIGH ) {
+      mode32();
+    }
   } else {
     mode1();
   }
