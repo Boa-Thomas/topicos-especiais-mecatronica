@@ -145,7 +145,7 @@ void mode31() {
   mode22();
 }
 
-void mode31() {
+void mode32() {
   // Código para Modo 32 (Prioridade para tráfego de veículos no semaforo 2)
   // 
   // Implemente a lógica aqui
