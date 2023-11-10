@@ -53,24 +53,66 @@ void mode1() {
 
 void mode21() {
   // Código para Modo 21 (Prioridade para pedestres no semaforo 1)
+  int tempo_1 = 15000;
+  int tempo_2 = 3000;
+  int tempo_3 = 5000;
+  
+    semaforo(red, 1);
+    semaforo(green, 2);
+    delay(tempo_1);
+    semaforo(yellow, 1);
+    semaforo(yellow,2);
+    delay(tempo_2);
+    semaforo(green, 1);
+    semaforo(red, 2);
+    delay(tempo_3);
   // Implemente a lógica aqui
 }
 
 void mode22() {
   // Código para Modo 22 (Prioridade para pedestres no semaforo 2)
   // Implemente a lógica aqui
+  int tempo_1 = 15000;
+  int tempo_2 = 3000;
+  int tempo_3 = 5000;
+  
+    semaforo(red, 2);
+    semaforo(green, 1);
+    delay(tempo_1);
+    semaforo(yellow, 2);
+    semaforo(yellow,1);
+    delay(tempo_2);
+    semaforo(green, 2);
+    semaforo(red, 1);
+    delay(tempo_3);
 }
 
 void mode31() {
   // Código para Modo 31 (Prioridade para tráfego de veículos no semaforo 1)
   // 
   // Implemente a lógica aqui
+  mode22();
 }
 
 void mode31() {
   // Código para Modo 32 (Prioridade para tráfego de veículos no semaforo 2)
   // 
   // Implemente a lógica aqui
+  mode21();
+}
+
+void mode4() {
+  // Código para Modo 4 (Carros com total prioridade)
+  semaforo(green, 1);
+  semaforo(green, 2);
+  delay(15000);
+}
+
+void mode5() {
+  // Código para Modo 5 (Pedestres com total prioridade)
+  semaforo(red, 1);
+  semaforo(red, 2);
+  delay(15000);
 }
 
 int read_pedestrian_sensor( int sensor_pin) {
@@ -130,7 +172,7 @@ void loop() {
   // Suponha que 10 seja um limite para ativar modos especiais
 if ( pedestrian_count1 > 10 || pedestrian_count2 > 10 ) {
     if ( pedestrian_count1 > 10 && pedestrian_count2 > 10 ) {
-      mode1();
+      mode5();
     } else if ( pedestrian_count1 > 10 ) {
       mode21();
     } else if ( pedestrian_count2 > 10 ) {
@@ -138,7 +180,7 @@ if ( pedestrian_count1 > 10 || pedestrian_count2 > 10 ) {
     }
   } else if ( vehicle_count1_near == HIGH || vehicle_count1_far == HIGH || vehicle_count2_near == HIGH || vehicle_count2_far == HIGH ) {
     if ( vehicle_count1_near == HIGH && vehicle_count1_far == HIGH && vehicle_count2_near == HIGH && vehicle_count2_far == HIGH ) {
-      mode1();
+      mode4();
     } else if ( vehicle_count1_near == HIGH || vehicle_count1_far == HIGH ) {
       mode31();
     } else if ( vehicle_count2_near == HIGH || vehicle_count2_far == HIGH ) {
