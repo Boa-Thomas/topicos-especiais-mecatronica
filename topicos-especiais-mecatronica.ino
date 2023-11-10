@@ -1,10 +1,13 @@
 #include <Arduino.h>
+#include "Adafruit_VL53L0X.h"
+
 
 // Definindo os pinos para os LEDs dos semáforos
+// Semaforo 1
 const int red_led1 = 2;
 const int yellow_led1 = 3;
 const int green_led1 = 4;
-
+// Semaforo 2
 const int red_led2 = 5;
 const int yellow_led2 = 6;
 const int green_led2 = 7;
@@ -13,11 +16,59 @@ const int green_led2 = 7;
 const int pedestrian_sensor1 = 8;
 const int pedestrian_sensor2 = 9;
 
-// Definindo sensores de fluxo para veículos (próximos e afastados)
-const int vehicle_sensor1_near = 10;
-const int vehicle_sensor1_far = 11;
-const int vehicle_sensor2_near = 12;
-const int vehicle_sensor2_far = 13;
+// Crie dois objetos para o VL53L0X
+Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
+
+// Pinos de desligamento para cada sensor conectado a diferentes GPIOs
+const int pinDesligamento1 = 10; 
+const int pinDesligamento2 = 11;
+
+
+void setID() {
+  // Desligue lox1 e mantenha lox2 funcionando
+  digitalWrite(shutdownPin1, LOW);
+  digitalWrite(shutdownPin2, HIGH);
+  delay(10);
+  // Inicialize lox2 com o endereço padrão
+  if (!lox2.begin()) {
+    Serial.println(F("Falha ao iniciar o segundo VL53L0X"));
+    while (1);
+  }
+
+  // Altere o endereço de lox2
+  lox2.setAddress((uint8_t)22);
+
+  // Reinicie lox1
+  digitalWrite(shutdownPin1, HIGH);
+  delay(10);
+  // Inicialize lox1 com o endereço padrão
+  if (!lox1.begin()) {
+    Serial.println(F("Falha ao iniciar o primeiro VL53L0X"));
+    while (1);
+  }
+}
+
+// Função para ler de um sensor específico
+int readDistance(int sensorNumber) {
+  VL53L0X_RangingMeasurementData_t measure;
+
+  if (sensorNumber == 1) {
+    lox1.rangingTest(&measure, false);
+  } else if (sensorNumber == 2) {
+    lox2.rangingTest(&measure, false);
+  } else {
+    return -1; // Número de sensor inválido
+  }
+
+  if (measure.RangeStatus != 4) { // Verifique se a medição é válida
+    return measure.RangeMilliMeter;
+  } else {
+    return -2; // Fora do alcance
+  }
+}
+
+
 
 void setup() {
   // Inicializar os LEDs como saídas
@@ -33,13 +84,13 @@ void setup() {
   pinMode(pedestrian_sensor1, INPUT);
   pinMode(pedestrian_sensor2, INPUT);
 
-  pinMode(vehicle_sensor1_near, INPUT);
-  pinMode(vehicle_sensor1_far, INPUT);
-  pinMode(vehicle_sensor2_near, INPUT);
-  pinMode(vehicle_sensor2_far, INPUT);
+  pinMode(shutdownPin1, OUTPUT);
+  pinMode(shutdownPin2, OUTPUT);
 
   // Inicializar a porta serial para depuração
   Serial.begin(9600);
+  setID();
+
 }
 // Modo de operação padrão
 void mode1() {
@@ -163,11 +214,14 @@ void loop() {
 
   // Ler os sensores de fluxo de veículos
   // Semaforo 1
-  int vehicle_count1_near = digitalRead(vehicle_sensor1_near);
-  int vehicle_count1_far = digitalRead(vehicle_sensor1_far);
+  int vehicle_count1 = readDistance(1);
   // Semaforo 2
-  int vehicle_count2_near = digitalRead(vehicle_sensor2_near);
-  int vehicle_count2_far = digitalRead(vehicle_sensor2_far);
+  int vehicle_count2 = readDistance(2);
+
+  // Definir os limites para ativar os modos especiais
+  // Limiares do sensor de carros
+  int carro_detectado = 1000;
+  int nao_detectado = -2;
 
   // Suponha que 10 seja um limite para ativar modos especiais
 if ( pedestrian_count1 > 10 || pedestrian_count2 > 10 ) {
@@ -178,12 +232,12 @@ if ( pedestrian_count1 > 10 || pedestrian_count2 > 10 ) {
     } else if ( pedestrian_count2 > 10 ) {
       mode22();
     }
-  } else if ( vehicle_count1_near == HIGH || vehicle_count1_far == HIGH || vehicle_count2_near == HIGH || vehicle_count2_far == HIGH ) {
-    if ( vehicle_count1_near == HIGH && vehicle_count1_far == HIGH && vehicle_count2_near == HIGH && vehicle_count2_far == HIGH ) {
+  } else if ( vehicle_count1 < carro_detectado || vehicle_count2 < nao_detectado || vehicle_count1 < nao_detectado || vehicle_count2 < carro_detectado) {
+    if (vehicle_count1 < carro_detectado && vehicle_count2 < nao_detectado && vehicle_count1 < nao_detectado && vehicle_count2 < carro_detectado ) {
       mode4();
-    } else if ( vehicle_count1_near == HIGH || vehicle_count1_far == HIGH ) {
+    } else if ( vehicle_count1 < carro_detectado || vehicle_count2 < nao_detectado ) {
       mode31();
-    } else if ( vehicle_count2_near == HIGH || vehicle_count2_far == HIGH ) {
+    } else if ( vehicle_count2 < carro_detectado || vehicle_count1 < nao_detectado ) {
       mode32();
     }
   } else {
