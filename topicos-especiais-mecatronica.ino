@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "Adafruit_VL53L0X.h"
-
+#include "HX711.h"
 
 // Definindo os pinos para os LEDs dos semáforos
 // Semaforo 1
@@ -12,6 +12,7 @@ const int red_led2 = 5;
 const int yellow_led2 = 6;
 const int green_led2 = 7;
 
+
 // Definindo os sensores para pedestres
 const int pedestrian_sensor1 = 8;
 const int pedestrian_sensor2 = 9;
@@ -21,8 +22,8 @@ Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
 Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
 
 // Pinos de desligamento para cada sensor conectado a diferentes GPIOs
-const int pinDesligamento1 = 10; 
-const int pinDesligamento2 = 11;
+const int shutdownPin1 = 10; 
+const int shutdownPin2 = 11;
 
 
 void setID() {
@@ -94,11 +95,11 @@ void setup() {
 }
 // Modo de operação padrão
 void mode1() {
-  semaforo(red, 1);
+  semaforo("red", 1);
   delay(5000);
-  semaforo(yellow, 1);
+  semaforo("yellow", 1);
   delay(2000);
-  semaforo(green, 1);
+  semaforo("green", 1);
   delay(15000);
 }
 
@@ -108,14 +109,14 @@ void mode21() {
   int tempo_2 = 3000;
   int tempo_3 = 5000;
   
-    semaforo(red, 1);
-    semaforo(green, 2);
+    semaforo("red", 1);
+    semaforo("green", 2);
     delay(tempo_1);
-    semaforo(yellow, 1);
-    semaforo(yellow,2);
+    semaforo("yellow", 1);
+    semaforo("yellow",2);
     delay(tempo_2);
-    semaforo(green, 1);
-    semaforo(red, 2);
+    semaforo("green", 1);
+    semaforo("red", 2);
     delay(tempo_3);
   // Implemente a lógica aqui
 }
@@ -127,14 +128,14 @@ void mode22() {
   int tempo_2 = 3000;
   int tempo_3 = 5000;
   
-    semaforo(red, 2);
-    semaforo(green, 1);
+    semaforo("red", 2);
+    semaforo("green", 1);
     delay(tempo_1);
-    semaforo(yellow, 2);
-    semaforo(yellow,1);
+    semaforo("yellow", 2);
+    semaforo("yellow",1);
     delay(tempo_2);
-    semaforo(green, 2);
-    semaforo(red, 1);
+    semaforo("green", 2);
+    semaforo("red", 1);
     delay(tempo_3);
 }
 
@@ -154,15 +155,15 @@ void mode32() {
 
 void mode4() {
   // Código para Modo 4 (Carros com total prioridade)
-  semaforo(green, 1);
-  semaforo(green, 2);
+  semaforo("green", 1);
+  semaforo("green", 2);
   delay(15000);
 }
 
 void mode5() {
   // Código para Modo 5 (Pedestres com total prioridade)
-  semaforo(red, 1);
-  semaforo(red, 2);
+  semaforo("red", 1);
+  semaforo("red", 2);
   delay(15000);
 }
 
