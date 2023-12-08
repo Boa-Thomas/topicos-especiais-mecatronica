@@ -2,28 +2,38 @@
 #include "Adafruit_VL53L0X.h"
 #include "HX711.h"
 
+
 // Definindo os pinos para os LEDs dos semáforos
 // Semaforo 1
-const int red_led1 = 2;
-const int yellow_led1 = 3;
-const int green_led1 = 4;
+const int red_led1 = 28;
+const int yellow_led1 = 30;
+const int green_led1 = 32;
 // Semaforo 2
-const int red_led2 = 5;
-const int yellow_led2 = 6;
-const int green_led2 = 7;
+const int red_led2 = 43;
+const int yellow_led2 = 45;
+const int green_led2 = 47;
 
 
-// Definindo os sensores para pedestres
-const int pedestrian_sensor1 = 8;
-const int pedestrian_sensor2 = 9;
+// Definição dos pinos para o módulo HX711
+const int LOADCELL_DOUT_PIN1 = A0;
+const int LOADCELL_SCK_PIN1 = A1;
+
+const int LOADCELL_DOUT_PIN2 = A2;
+const int LOADCELL_SCK_PIN2 = A3;
+
+// Definição dos objetos para o módulo HX711
+HX711 scale1;
+HX711 scale2;
+
+
 
 // Crie dois objetos para o VL53L0X
 Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
 Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
 
 // Pinos de desligamento para cada sensor conectado a diferentes GPIOs
-const int shutdownPin1 = 10; 
-const int shutdownPin2 = 11;
+const int shutdownPin1 = 10; //<- essa parte precisa ser conectada ao pino de desligamento do sensor 1 (ainda não conectado)
+const int shutdownPin2 = 11; //<- essa parte precisa ser conectada ao pino de desligamento do sensor 2 (ainda não conectado)
 
 
 void setID() {
@@ -81,9 +91,8 @@ void setup() {
   pinMode(yellow_led2, OUTPUT);
   pinMode(green_led2, OUTPUT);
 
-  // Inicializar os sensores como entradas
-  pinMode(pedestrian_sensor1, INPUT);
-  pinMode(pedestrian_sensor2, INPUT);
+  scale1.begin(LOADCELL_DOUT_PIN1, LOADCELL_SCK_PIN1);
+  scale2.begin(LOADCELL_DOUT_PIN2, LOADCELL_SCK_PIN2);
 
   pinMode(shutdownPin1, OUTPUT);
   pinMode(shutdownPin2, OUTPUT);
@@ -153,12 +162,6 @@ void mode32() {
   mode21();
 }
 
-void mode4() {
-  // Código para Modo 4 (Carros com total prioridade)
-  semaforo("green", 1);
-  semaforo("green", 2);
-  delay(15000);
-}
 
 void mode5() {
   // Código para Modo 5 (Pedestres com total prioridade)
@@ -167,11 +170,31 @@ void mode5() {
   delay(15000);
 }
 
-int read_pedestrian_sensor( int sensor_pin) {
+int read_pedestrian_sensor() {
   // Código para ler o sensor de pedestres
   // 
   // Implemente a lógica aqui
 }
+
+
+float readWeight(HX711 scale) {
+
+  //Utilizar a função 'read' do objeto HX711 para ler o peso
+  // float weight1 = readWeight(scale1);
+  // float weight2 = readWeight(scale2);
+
+  if (scale.is_ready()) {
+    long reading = scale.read();
+    // Substituir 'calibration_factor' pelo fator de calibração específico
+    float weight = reading / calibration_factor;
+    return weight;
+  } else {
+    Serial.println("Erro na leitura da célula de carga");
+    return 0;
+  }
+}
+
+
 void semaforo(String color, int semaforo_id) {
   int redPin, yellowPin, greenPin;
   
@@ -209,9 +232,11 @@ void semaforo(String color, int semaforo_id) {
 void loop() {
   // Ler os sensores
   // Semaforo 1
-  int pedestrian_count1 = read_pedestrian_sensor(pedestrian_sensor1);
+  float weight1 = readWeight(scale1);
+  
   // Semafoto 2
-  int pedestrian_count2 = read_pedestrian_sensor(pedestrian_sensor2);
+  float weight2 = readWeight(scale2);
+
 
   // Ler os sensores de fluxo de veículos
   // Semaforo 1
@@ -225,12 +250,12 @@ void loop() {
   int nao_detectado = -2;
 
   // Suponha que 10 seja um limite para ativar modos especiais
-if ( pedestrian_count1 > 10 || pedestrian_count2 > 10 ) {
-    if ( pedestrian_count1 > 10 && pedestrian_count2 > 10 ) {
+if ( weight1 > 200 || weight2 > 200 ) {
+    if ( weight1 > 200 && weight2 > 200 ) {
       mode5();
-    } else if ( pedestrian_count1 > 10 ) {
+    } else if ( weight1 > 200 ) {
       mode21();
-    } else if ( pedestrian_count2 > 10 ) {
+    } else if ( weight2 > 200 ) {
       mode22();
     }
   } else if ( vehicle_count1 < carro_detectado || vehicle_count2 < nao_detectado || vehicle_count1 < nao_detectado || vehicle_count2 < carro_detectado) {
